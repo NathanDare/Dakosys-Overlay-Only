@@ -20,16 +20,14 @@ export default function DashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<StatusResponse | null>(null);
   const [animeCount, setAnimeCount] = useState(0);
-  const [traktCount, setTraktCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
-      const [res, animeRes, traktRes] = await Promise.all([
+      const [res, animeRes] = await Promise.all([
         api.getStatus(),
         api.getAnimeSchedule(),
-        api.getTraktLists(),
       ]);
       if (res.config_missing) {
         router.replace("/setup");
@@ -37,7 +35,6 @@ export default function DashboardPage() {
       }
       setData(res);
       setAnimeCount(animeRes.count);
-      setTraktCount(traktRes.total);
       setError(null);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load status");
@@ -101,11 +98,6 @@ export default function DashboardPage() {
                         <div>
                           <NumberTicker value={animeCount} className="text-3xl font-bold text-white" />
                           <p className="text-zinc-500 text-xs mt-1">scheduled</p>
-                        </div>
-                        <div className="w-px h-8 bg-zinc-700" />
-                        <div>
-                          <NumberTicker value={traktCount} className="text-3xl font-bold text-white" />
-                          <p className="text-zinc-500 text-xs mt-1">trakt lists</p>
                         </div>
                       </div>
                     </div>
