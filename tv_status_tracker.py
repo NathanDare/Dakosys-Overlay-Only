@@ -181,11 +181,12 @@ class TVStatusTracker:
         cached_status = entry.get('status')
         if not should_refresh(entry, cached_status):
             logging.info(f"Skipping TMDB refresh for {show.title} (tmdb_id={tmdb_id}); last checked {entry.get('last_checked')}")
+            status_type = entry.get('status_type', 'UNKNOWN')
             return {
                 'text_content': entry.get('text_content', 'UNKNOWN'),
-                'back_color': entry.get('back_color', '#E9E9E9'),
+                'back_color': self.colors.get(status_type, '#E9E9E9'),
                 'font': self.font_path_yaml,
-                'status_type': entry.get('status_type', 'UNKNOWN')
+                'status_type': status_type
             }
 
         # Fetch fresh data from TMDB
@@ -236,8 +237,8 @@ class TVStatusTracker:
         self.local_db[tmdb_id] = {
             'title': show.title,
             'status': status,
+            'date': date_str if 'date_str' in locals() else '',
             'text_content': text_content,
-            'back_color': back_color,
             'status_type': status_type,
             'last_checked': datetime.utcnow().isoformat() + 'Z'
         }
