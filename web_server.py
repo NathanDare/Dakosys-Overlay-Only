@@ -416,10 +416,14 @@ def trigger_run(service: str):
         _log = _logging.getLogger("anime_trakt_manager")
         run_status[service] = True
         try:
-            import anime_trakt_manager as _atm
-            _atm.load_config()
-            from auto_update import run_update
-            run_update([service])
+            if service == "tv_status_tracker":
+                from tv_status_tracker import run_tv_status_tracker
+                run_tv_status_tracker()
+            else:
+                import anime_trakt_manager as _atm
+                _atm.load_config()
+                from auto_update import run_update
+                run_update([service])
         except Exception as exc:
             import traceback as _tb
             _log.error(f"Manual run of '{service}' failed: {exc}\n{_tb.format_exc()}")
