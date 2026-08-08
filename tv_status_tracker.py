@@ -238,6 +238,7 @@ class TVStatusTracker:
             'title': show.title,
             'status': status,
             'date': date_str if 'date_str' in locals() else '',
+            'next_air_date': next_ep['air_date'] if 'next_ep' in locals() and next_ep and next_ep.get('air_date') else '',
             'text_content': text_content,
             'status_type': status_type,
             'last_checked': datetime.utcnow().isoformat() + 'Z'

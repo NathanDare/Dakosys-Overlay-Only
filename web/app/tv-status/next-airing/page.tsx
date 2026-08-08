@@ -28,14 +28,9 @@ function PosterCard({ show }: { show: NextAiringShow }) {
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("");
 
-  return (
-    <a
-      href={`https://trakt.tv/shows/${show.trakt_slug}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-violet-600/50 transition-all hover:shadow-lg hover:shadow-violet-900/20"
-    >
-      {/* Poster */}
+  const cardClass = "group block rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-violet-600/50 transition-all hover:shadow-lg hover:shadow-violet-900/20";
+  const inner = (
+    <>
       <div className="relative w-full aspect-[2/3] bg-zinc-800 overflow-hidden">
         {show.poster_url && !imgError ? (
           <img
@@ -49,13 +44,11 @@ function PosterCard({ show }: { show: NextAiringShow }) {
             <span className="text-3xl font-bold text-zinc-600">{initials}</span>
           </div>
         )}
-        {/* Rank badge */}
         <div className="absolute top-2 left-2 bg-black/70 text-zinc-300 text-xs font-mono px-1.5 py-0.5 rounded">
           #{show.rank}
         </div>
       </div>
 
-      {/* Info */}
       <div className="p-2.5">
         <p className="text-white text-xs font-medium leading-tight mb-1.5 line-clamp-2 min-h-[2.5em]" title={show.title}>
           {show.title}
@@ -67,8 +60,23 @@ function PosterCard({ show }: { show: NextAiringShow }) {
           <p className="text-zinc-500 text-xs mt-1">{show.date}</p>
         )}
       </div>
-    </a>
+    </>
   );
+
+  if (show.trakt_slug) {
+    return (
+      <a
+        href={`https://trakt.tv/shows/${show.trakt_slug}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cardClass}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return <div className={cardClass}>{inner}</div>;
 }
 
 function TmdbKeyMissing() {
@@ -127,7 +135,7 @@ export default function NextAiringPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-white">Next Airing</h1>
         <p className="text-zinc-400 mt-1">
-          Your Trakt &ldquo;Next Airing&rdquo; watchlist in air-date order
+          Airing shows from your library, sorted by next air date
         </p>
       </div>
 

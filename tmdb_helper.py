@@ -66,7 +66,7 @@ def get_show(tmdb_id: str, api_key: str) -> Optional[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Refresh helper
 # ---------------------------------------------------------------------------
-ACTIVE_STATUSES = {"Returning Series", "In Production", "Planned", "Pilot"}
+ACTIVE_STATUSES = {"returning series", "in production", "planned", "pilot"}
 
 def should_refresh(entry: Dict[str, Any], status: str, refresh_ended_days: int = 7) -> bool:
     """Determine whether a TMDB request should be made for a show.
@@ -76,7 +76,7 @@ def should_refresh(entry: Dict[str, Any], status: str, refresh_ended_days: int =
     * Ended or cancelled shows are refreshed only if ``last_checked`` is older
       than ``refresh_ended_days``.
     """
-    if status in ACTIVE_STATUSES:
+    if status and status.lower() in ACTIVE_STATUSES:
         return True
     last = entry.get("last_checked")
     if not last:

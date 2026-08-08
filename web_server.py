@@ -32,6 +32,7 @@ else:
 
 LOG_FILE = os.path.join(DATA_DIR, "anime_trakt_manager.log")
 TV_STATUS_CACHE = os.path.join(DATA_DIR, "tv_status_cache.json")
+LOCAL_TV_DB = os.path.join(DATA_DIR, "local_tv_db.json")
 PREVIOUS_SIZES_FILE = os.path.join(DATA_DIR, "previous_sizes.json")
 
 
@@ -557,7 +558,41 @@ def get_next_airing():
 
     username = config.get("trakt", {}).get("username")
     if not username:
-        return {"shows": [], "count": 0, "error": "Trakt username not configured"}
+        if not os.path.exists(LOCAL_TV_DB):
+            return {"shows": [], "count": 0, "error": "No local TV database found — run the TV Status Tracker first"}
+        try:
+            import concurrent.futures as _cf
+            with open(LOCAL_TV_DB, "r") as f:
+                local_db = json.load(f)
+        except Exception as e:
+            return {"shows": [], "count": 0, "error": f"Failed to read local TV database: {e}"}
+
+        airing = [
+            (tid, entry)
+            for tid, entry in local_db.items()
+            if entry.get("status_type") == "AIRING" and entry.get("next_air_date")
+        ]
+        airing.sort(key=lambda x: x[1]["next_air_date"])
+
+        tmdb_ids_to_fetch = [int(tid) for tid, _ in airing if int(tid) not in _tmdb_poster_cache]
+        if tmdb_ids_to_fetch:
+            with _cf.ThreadPoolExecutor(max_workers=10) as pool:
+                list(pool.map(lambda tid: _fetch_tmdb_poster(tid, tmdb_api_key), tmdb_ids_to_fetch))
+
+        shows = [
+            {
+                "rank": i + 1,
+                "title": entry["title"],
+                "trakt_slug": "",
+                "trakt_id": None,
+                "poster_url": _tmdb_poster_cache.get(int(tid)),
+                "status": entry["status_type"],
+                "date": entry["date"],
+                "text": entry["text_content"],
+            }
+            for i, (tid, entry) in enumerate(airing)
+        ]
+        return {"shows": shows, "count": len(shows), "source": "local"}
 
     try:
         import trakt_auth as _ta
