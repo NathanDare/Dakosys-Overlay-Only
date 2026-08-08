@@ -49,7 +49,7 @@ class TVStatusTracker:
         self.timezone = config['timezone']
 
 
-        self.tmdb_api_key = config.get('tmdb', {}).get('api_key')
+        self.tmdb_api_key = config.get('tmdb_api_key')
 
         self.tv_status_config = config['services']['tv_status_tracker']
         self.colors = self.tv_status_config.get('colors', {})
